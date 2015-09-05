@@ -1,3 +1,5 @@
+set t_Co=16
+
 let g:solarized_diffmode="high"
 if has("gui_running")
   if has("gui_macvim")
@@ -18,13 +20,29 @@ Plugin 'SirVer/ultisnips'
 Plugin 'honza/vim-snippets'
 Plugin 'ervandew/supertab'
 Plugin 'fatih/vim-go'
+Plugin 'vim-scripts/AutoComplPop' "Auto Complete Popup : http://www.vim.org/scripts/script.php?script_id=1879
+Plugin 'vim-scripts/taglist.vim' "Source code browser : https://github.com/vim-scripts/taglist.vim
 Plugin 'bling/vim-airline' "Lean & mean status/tabline for vim that's light as air.
 Plugin 'airblade/vim-gitgutter' "shows a git diff in the gutter (sign column)
+Plugin 'wincent/command-t' "https://github.com/wincent/Command-T
+Plugin 'tpope/vim-git' "Git format plugins
+Plugin 'ngmy/vim-rubocop' "Rubocop integration
+Plugin 'scrooloose/syntastic' " https://github.com/scrooloose/syntastic
+Plugin 'myint/syntastic-extras' "https://github.com/myint/syntastic-extras
 call vundle#end()
 
 set background=dark
 colorscheme solarized
 set nocompatible
+
+"Syntastic checks
+let g:syntastic_cfg_checkers = ['cfg']
+let g:syntastic_javascript_checkers = ['json_tool']
+let g:syntastic_gitcommit_checkers = ['language_check']
+let g:syntastic_svn_checkers = ['language_check']
+let g:syntastic_yaml_checkers = ['pyyaml']
+let g:syntastic_ruby_checkers = ['rubocop']
+let g:syntastic_python_checkers = ['pep8']
 
 " Allow copy/paste to system clipboard
 set clipboard=unnamedplus
@@ -103,8 +121,6 @@ set novisualbell
 set t_vb=
 set tm=500
 
-" Line numbers on
-" set nu
 
 set nowrap                      " wrap long lines
 set autoindent                  " indent at the same level of the previous line
@@ -159,8 +175,8 @@ nnoremap <F6> :!x-www-browser file://%:p &<CR>
 " Show column
 :set colorcolumn=+1        " highlight column after 'textwidth'
 :set colorcolumn=+1,+2,+3  " highlight three columns after 'textwidth'
-:highlight ColorColumn ctermbg=lightblue guibg=lightblue
-:set colorcolumn=80
+:highlight ColorColumn ctermbg=240 guibg=#2c2d27
+let &colorcolumn="80,".join(range(120,999),",")
 
 " Set wildmode (menu completion)
 set wildmenu
@@ -242,7 +258,12 @@ let g:UltiSnipsJumpBackwardTrigger = "<s-tab>"
 " Git Gutter Config
 let g:gitgutter_diff_args = '-w'
 
-" Set 256 colour terminal support
-if $COLORTERM == 'gnome-terminal'
-  set t_Co=256
-endif
+" Replace highlighted text with yanked text use 'S'
+" Taken from http://vim.wikia.com/wiki/Replace_a_word_with_yanked_text
+vnoremap S "_dP
+
+" Line numbers on
+set nu
+
+" Set Line number colour
+:highlight LineNr ctermfg=240
