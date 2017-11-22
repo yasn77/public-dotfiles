@@ -15,34 +15,62 @@ execute pathogen#infect()
 call vundle#begin()
 " let Vundle manage Vundle, required
 Plugin 'gmarik/Vundle.vim'
+Plugin 'tpope/vim-surround'
+Plugin 'Chiel92/vim-autoformat'
 Plugin 'Valloric/YouCompleteMe'
 Plugin 'SirVer/ultisnips'
 Plugin 'honza/vim-snippets'
 Plugin 'ervandew/supertab'
 Plugin 'fatih/vim-go'
 Plugin 'vim-scripts/AutoComplPop' "Auto Complete Popup : http://www.vim.org/scripts/script.php?script_id=1879
-Plugin 'vim-scripts/taglist.vim' "Source code browser : https://github.com/vim-scripts/taglist.vim
 Plugin 'bling/vim-airline' "Lean & mean status/tabline for vim that's light as air.
+Plugin 'vim-airline/vim-airline-themes'
 Plugin 'airblade/vim-gitgutter' "shows a git diff in the gutter (sign column)
 Plugin 'wincent/command-t' "https://github.com/wincent/Command-T
 Plugin 'tpope/vim-git' "Git format plugins
 Plugin 'ngmy/vim-rubocop' "Rubocop integration
-Plugin 'scrooloose/syntastic' " https://github.com/scrooloose/syntastic
-Plugin 'myint/syntastic-extras' "https://github.com/myint/syntastic-extras
+" Disable syntastic as it conflicts with ALE
+" Plugin 'scrooloose/syntastic' " https://github.com/scrooloose/syntastic
+" Plugin 'myint/syntastic-extras' "https://github.com/myint/syntastic-extras
+Plugin 'edkolev/tmuxline.vim' "Share airline statusline with Tmux - https://github.com/edkolev/tmuxline.vim
+Plugin 'sjl/gundo.vim' "Gundo.vim is Vim plugin to visualize your Vim undo tree.
+Plugin 'godlygeek/tabular' "Vim script for text filtering and alignment - https://github.com/godlygeek/tabular
+Plugin 'plasticboy/vim-markdown'
+Plugin 'KabbAmine/zeavim.vim' " Search Zeal for docs - https://github.com/KabbAmine/zeavim.vim
+Plugin 'JamshedVesuna/vim-markdown-preview' "A small Vim plugin for previewing markdown files in a browser. - https://github.com/JamshedVesuna/vim-markdown-preview
+Plugin 'xolox/vim-easytags' "Automated tag file generation and syntax highlighting of tags in Vim http://peterodding.com/code/vim/easytags/
+Plugin 'xolox/vim-misc' "Miscellaneous auto-load Vim scripts http://peterodding.com/code/vim/misc/ (needed for easytags)
+Plugin 'majutsushi/tagbar' "Vim plugin that displays tags in a window, ordered by scope http://majutsushi.github.com/tagbar/
+Plugin 'editorconfig/editorconfig-vim'
+Plugin 'altercation/vim-colors-solarized'
+Plugin 'tpope/vim-fugitive'
+Plugin 'nathanaelkane/vim-indent-guides' "https://github.com/nathanaelkane/vim-indent-guides
+Plugin 'flazz/vim-colorschemes' "http://vimawesome.com/plugin/vim-colorschemes-sweeter-than-fiction
+Plugin 'scrooloose/nerdtree'
+Plugin 'scrooloose/nerdcommenter'
+Plugin 'jistr/vim-nerdtree-tabs'
+Plugin 'Xuyuanp/nerdtree-git-plugin'
+Plugin 'kien/rainbow_parentheses.vim'
+Plugin 'ryanoasis/vim-devicons' "Should load last and needs nerdfont
+if v:version >= 800
+  Plugin 'w0rp/ale' "ALE (Asynchronous Lint Engine) is a plugin for providing linting in NeoVim and Vim 8 while you edit your text files. (https://github.com/w0rp/ale)
+endif
 call vundle#end()
 
 set background=dark
 colorscheme solarized
+let g:airline_theme='tomorrow'
 set nocompatible
 
+" Disable syntastic as it conflicts with ALE
 "Syntastic checks
-let g:syntastic_cfg_checkers = ['cfg']
-let g:syntastic_javascript_checkers = ['json_tool']
-let g:syntastic_gitcommit_checkers = ['language_check']
-let g:syntastic_svn_checkers = ['language_check']
-let g:syntastic_yaml_checkers = ['pyyaml']
-let g:syntastic_ruby_checkers = ['rubocop']
-let g:syntastic_python_checkers = ['pep8']
+" let g:syntastic_cfg_checkers = ['cfg']
+" let g:syntastic_javascript_checkers = ['json_tool']
+" let g:syntastic_gitcommit_checkers = ['language_check']
+" let g:syntastic_svn_checkers = ['language_check']
+" let g:syntastic_yaml_checkers = ['pyyaml']
+" let g:syntastic_ruby_checkers = ['rubocop']
+" let g:syntastic_python_checkers = ['pep8']
 
 " Allow copy/paste to system clipboard
 set clipboard=unnamedplus
@@ -64,8 +92,8 @@ inoremap <expr> <C-n> pumvisible() ? '<C-n>' :
 inoremap <expr> <M-,> pumvisible() ? '<C-n>' :
   \ '<C-x><C-o><C-n><C-p><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
 
-" Toggle Taglist (http://vim-taglist.sourceforge.net/index.html)
-nnoremap <silent> <F8> :TlistToggle<CR>
+" Toggle Tagbar
+nmap <F8> :TagbarToggle<CR>
 
 " Set to auto read when a file is changed from the outside
 set autoread
@@ -126,12 +154,20 @@ set nowrap                      " wrap long lines
 set autoindent                  " indent at the same level of the previous line
 set shiftwidth=2                " use indents of 2 spaces
 set expandtab                   " tabs are spaces, not tabs
-set tabstop=2                   " an indentation every four columns
+set tabstop=2 sw=2 et                   " an indentation every four columns
 set softtabstop=2               " let backspace delete indent
 set pastetoggle=<F12>           " pastetoggle (sane indentation on pastes)
 set comments=sl:/*,mb:*,elx:*/  " auto format comment blocks
-" Remove trailing whitespaces and ^M chars
-autocmd FileType c,cpp,java,php,javascript,python,twig,xml,yml,puppet autocmd BufWritePre <buffer> :call setline(1,map(getline(1,"$"),'substitute(v:val,"\\s\\+$","","")'))
+
+function! CodingOptions()
+  autocmd BufWritePre <buffer> :call setline(1,map(getline(1,"$"),'substitute(v:val,"\\s\\+$","","")'))
+  :set cursorline
+  let g:tagbar_zoomwidth = 0
+  let g:tagbar_left = 1
+  :TagbarToggle
+endfunction
+
+autocmd FileType c,cpp,java,php,javascript,python,twig,xml,yml,puppet call CodingOptions()
 autocmd BufNewFile,BufRead *.html.twig set filetype=html.twig
 
 syntax enable
@@ -211,6 +247,7 @@ set statusline+=%*
 
 set statusline+=%h      "help file flag
 set statusline+=%y      "filetype
+set statusline+=%{ALEGetStatusLine()}
 
 "read only flag
 set statusline+=%#identifier#
@@ -267,3 +304,28 @@ set nu
 
 " Set Line number colour
 :highlight LineNr ctermfg=240
+
+"Set binding to toggle gundo
+nnoremap <leader>u :GundoToggle<CR>
+
+" NERDTree Configure
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+map <C-n> :NERDTreeToggle<CR>
+
+" Indent guide Config
+let g:indent_guides_enable_on_vim_startup = 1
+let g:indent_guides_exclude_filetypes = ['help', 'nerdtree']
+let g:indent_guides_start_level = 2
+let g:indent_guides_guide_size = 1
+
+" Enable Rainbow Parenthesis
+au VimEnter * RainbowParenthesesToggle
+au Syntax * RainbowParenthesesLoadRound
+au Syntax * RainbowParenthesesLoadSquare
+au Syntax * RainbowParenthesesLoadBraces
+
+" Configure autoformat
+let g:formatter_yapf_style = 'pep8'
+noremap <F3> :Autoformat<CR>

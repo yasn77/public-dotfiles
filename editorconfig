@@ -10,13 +10,16 @@ insert_final_newline = true
 charset = utf-8
 indent_style = space
 trim_trailing_whitespace = true
+max_line_length = 80
 
 # 4 space indentation
 [*.py]
 indent_size = 4
+max_line_length = 79
 
 [*.rb]
 indent_size = 2
 
 [*.pp]
 indent_size = 2
+max_line_length = 140
